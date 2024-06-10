@@ -148,13 +148,14 @@ class EventDetailPage extends StatelessWidget {
                             //if(controller.ratingEnabled.value)
                             Obx(() {
                               var rating = controller.rating;
+                              var total=rating['counts']?['total']==null?1.0:rating['counts']!['total'];
                               var starCol = (rating['self']??0)==0 ? Colors.amber : Colors.yellow;
                               List<double> ratingCounts = [
-                                ((rating['counts']?['v'] ?? 0).toDouble() /((rating['counts']?['total'] ?? 1.0)==0?1.0:rating['counts']['total'])),
-                                ((rating['counts']?['iv'] ?? 0).toDouble() /((rating['counts']?['total'] ?? 1.0)==0?1.0:rating['counts']['total'])),
-                                ((rating['counts']?['iii'] ?? 0).toDouble() /((rating['counts']?['total'] ?? 1.0)==0?1.0:rating['counts']['total'])),
-                                ((rating['counts']?['ii'] ?? 0).toDouble() /((rating['counts']?['total'] ?? 1.0)==0?1.0:rating['counts']['total'])),
-                                ((rating['counts']?['i'] ?? 0).toDouble() /((rating['counts']?['total'] ?? 1.0)==0?1.0:rating['counts']['total'])),
+                                ((rating['counts']?['v'] ?? 0).toDouble() /total),
+                                ((rating['counts']?['iv'] ?? 0).toDouble() /total),
+                                ((rating['counts']?['iii'] ?? 0).toDouble() /total),
+                                ((rating['counts']?['ii'] ?? 0).toDouble() /total),
+                                ((rating['counts']?['i'] ?? 0).toDouble() /total),
                               ];
                               return Column(
                                 children: [

@@ -1,8 +1,10 @@
 import 'dart:ui';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:get/get.dart';
 import 'package:volunteer_app/controllers/event_card_controller.dart';
+import 'package:volunteer_app/services/network.dart';
 // import 'package:flutter/material.dart';
 
 import '../../models/event.dart';
@@ -15,7 +17,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EventCardController controller = Get.put(EventCardController());
-
+    const TextStyle btnStyle = const TextStyle(color: Colors.white);
     return Obx(() {
       var distance = controller.isPressed.value
           ? const Offset(10, 10)
@@ -30,7 +32,7 @@ class EventCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              color: const Color(0xFFE7ECEF),
+              color: controller.fromStatus(event.status),
               boxShadow: [
                 BoxShadow(
                   blurRadius: blur,
@@ -51,20 +53,26 @@ class EventCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    event.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        event.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        )
+                      ),
+                      Row(
+                        children: [
+                          if(event.status.contains('Live')) 
+                              const Icon(Icons.circle, color: Colors.red, size: 16),
+                          Text(event.status)
+                        ]
+                      )
+                    ]
                   ),
                   const SizedBox(height: 8),
-                  Image.network(
-                    'https://picsum.photos/400/200',
-                    height: 200,
-                    width: 400,
-                    fit: BoxFit.fill,
-                  ),
                   const SizedBox(height: 8),
                   // Text(
                   //   event.description,
@@ -101,14 +109,84 @@ class EventCard extends StatelessWidget {
                     height: 10,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ElevatedButton(
                         onPressed: () {
                           Get.toNamed('/event/${event.id}');
                         },
-                        child: const Text('Open Event'),
+                        style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all<Color>(
+                          const Color(0xff4080aa),
+                        )),
+                        child: const Text('Details', style: btnStyle),
                       ),
+                      if (NetworkService.isOrg) ...[
+                        if(NetworkService.uid==event.oid)...[
+                        ElevatedButton(
+                          onPressed: () {
+                            Get.toNamed('/event/edit/${event.id}');
+                          },
+                          style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all<Color>(const Color(0xffaa7710),
+                          )),
+                          child: const Text('Edit', style: btnStyle),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            // popup confirmation:
+                            Get.defaultDialog(
+                              title: 'Cancel Event',
+                              middleText:
+                                  'Are you sure you want to delete this event?',
+                              textConfirm: 'Yes',
+                              textCancel: 'No',
+                              backgroundColor: Colors.teal[50],
+                              confirmTextColor: Colors.white,
+                              buttonColor: const Color(0xffAA1F00),
+                              cancelTextColor: Colors.black,
+                              onConfirm: () async {
+                                try {
+                                  await controller.deleteEvent(event.id);
+                                } on DioException catch (e) {
+                                  Get.close(1);
+                                  if (e.response?.data.toString().contains('Not the owner') ??false)
+                                    Get.snackbar('Not allowed','You cannot delete other\'s events',backgroundColor: Color.fromARGB(150, 255, 0, 0));
+                                  else
+                                    Get.snackbar('Error', 'Failed to delete event');
+                                }
+                              },
+                              onCancel: () => Get.close(1),
+                            );
+                          },
+                          style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all<Color>(
+                            const Color(0xffAA1F00),
+                          )),
+                          child: const Text('Cancel', style: btnStyle),
+                        ),]
+                      ] else ...[
+                        if(event.status.contains('enroll'))
+                        ElevatedButton(
+                          onPressed: () {
+                            Get.toNamed('/event/${event.id}');
+                          },
+                          style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all<Color>(
+                            Colors.green,
+                          )),
+                          child: const Text('Unenroll', style: btnStyle),
+                        ) else if(event.status.contains('upcoming')) ElevatedButton(
+                          onPressed: () {
+                            Get.toNamed('/event/${event.id}');
+                          },
+                          style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all<Color>(
+                            Colors.green,
+                          )),
+                          child: const Text('Enroll', style: btnStyle),
+                        )
+                      ]
                     ],
                   )
                 ],

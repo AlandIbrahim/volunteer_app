@@ -10,20 +10,19 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    HomeController homeController = Get.find();
+    HomeController controller = Get.find();
     ScrollController _scrollController = ScrollController();
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
               _scrollController.position.maxScrollExtent &&
-          !homeController.isLoadingMore.value) {
-        homeController.fetchData(page: homeController.currentPage.value + 1);
+          !controller.isLoadingMore.value) {
+        controller.fetchData(page: controller.currentPage.value + 1);
       }
     });
 
     return Scaffold(
       appBar: AppBar(
-        
         leading: NetworkService.isOrg? IconButton(
           onPressed: () {
             Get.toNamed('/event/host');
@@ -39,28 +38,28 @@ class HomePage extends StatelessWidget {
       ),
       bottomNavigationBar: MyNavigationBar(),
       body: Obx(() {
-        if (homeController.isLoading.value) {
+        if (controller.isLoading.value) {
           return const Center(
             child: CircularProgressIndicator(
               color: Colors.teal,
             ),
           );
         } else {
-          if (homeController.serverAvailable.value) {
+          if (controller.serverAvailable.value) {
             return Container(
               color: Colors.white,
               child: RefreshIndicator(
                 onRefresh: () async {
-                  homeController.currentPage.value = 1;
-                  homeController.fetchData(page: 1);
+                  controller.currentPage.value = 1;
+                  controller.fetchData(page: 1);
                 },
                 child: ListView.builder(
                   controller: _scrollController,
-                  itemCount: homeController.isLoadingMore.value
-                      ? homeController.events.length + 1
-                      : homeController.events.length,
+                  itemCount: controller.isLoadingMore.value
+                      ? controller.events.length + 1
+                      : controller.events.length,
                   itemBuilder: (context, index) {
-                    if (index == homeController.events.length) {
+                    if (index == controller.events.length) {
                       // Show bottom loading indicator
                       return const Center(
                         child: CircularProgressIndicator(
@@ -68,7 +67,7 @@ class HomePage extends StatelessWidget {
                         ),
                       );
                     }
-                    var event = homeController.events[index];
+                    var event = controller.events[index];
                     return Column(
                       children: [
                         EventCard(event: event),
@@ -89,7 +88,7 @@ class HomePage extends StatelessWidget {
                   const Text('Failed to connect, please try again'),
                   TextButton(
                     child: const Text('Try Again'),
-                    onPressed: () => homeController.fetchData(),
+                    onPressed: () => controller.fetchData(),
                   )
                 ],
               ),

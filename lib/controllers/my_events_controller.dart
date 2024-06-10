@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:volunteer_app/models/event.dart';
-import 'package:volunteer_app/services/api.dart';
-import 'package:volunteer_app/services/network.dart';
+import '../models/event.dart';
+import '../services/api.dart';
+import '../services/network.dart';
 
 class MyEventsController extends GetxController {
   NetworkService ns = NetworkService();

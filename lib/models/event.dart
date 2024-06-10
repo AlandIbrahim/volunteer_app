@@ -111,22 +111,25 @@ class Event {
 class AllEventDTO {
   int id;
   String title;
+  int oid;
   String organization;
   City city;
   String location;
   DateTime enrollTime;
   DateTime startDate;
   Duration time;
-
+  String status;
   AllEventDTO({
     required this.id,
     required this.title,
+    required this.oid,
     required this.organization,
     required this.city,
     required this.location,
     required this.enrollTime,
     required this.startDate,
     required this.time,
+    required this.status,
   });
 
   factory AllEventDTO.fromJson(Map<String, dynamic> json) {
@@ -134,6 +137,7 @@ class AllEventDTO {
     return AllEventDTO(
       id: json["id"],
       title: json["title"],
+      oid: json["oid"]??0,
       organization: json["organization"],
       city: City.values[json["city"] - 1],
       location: json["location"],
@@ -145,6 +149,7 @@ class AllEventDTO {
           timeParts[1],
         ),
       ),
+      status: json["status"]??"upcoming",
     );
   }
 }

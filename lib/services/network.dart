@@ -14,24 +14,34 @@ class NetworkService {
   CookieJar? _cookieJar;
   static const String _cookieKey = 'cookies';
   static bool? _isOrg;
+  static int? _uid;
   static bool get isOrg=>_isOrg??false;
+  static int get uid=>_uid??0;
   NetworkService() {
     _dio = Dio();
     _cookieJar = CookieJar();
     _dio?.interceptors.add(CookieManager(_cookieJar!));
   }
-  static Future initOrg() async {
+  static Future initUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-      if(prefs.containsKey('isOrg'))
+      if(prefs.containsKey('isOrg')&&prefs.containsKey('uid')){
         _isOrg = prefs.getBool('isOrg');
+        _uid = prefs.getInt('uid');
+      }
       else{
-        _isOrg=(await NetworkService().getRequest(Uri.https(apiUrl, 'user/role'))).data=='o';
-        await prefs.setBool('isOrg', _isOrg!);
+        var response=(await NetworkService().getRequest(Uri.https(apiUrl, 'user/role'))).data;
+        _isOrg=response[0]=='o';
+        _uid=int.parse(response.substring(1));
+        prefs.setBool('isOrg', _isOrg!);
+        prefs.setInt('uid', _uid!);
       }
   }
-  static Future setOrg(bool isOrg) async {
+  static Future setUser(int uid,bool isOrg) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     _isOrg = isOrg;
-    await (await SharedPreferences.getInstance()).setBool('isOrg', isOrg);
+    _uid = uid;
+    prefs.setBool('isOrg', isOrg);
+    prefs.setInt('uid', uid);
   }
   // Save cookies to SharedPreferences
   Future<void> saveCookies(Uri uri) async {

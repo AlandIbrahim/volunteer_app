@@ -43,25 +43,13 @@ class LoginPageController extends GetxController {
       // Form is valid, perform submission
       Uri uri = Uri.https(apiUrl, login);
       try {
-        // var response = await http.post(
-        //   uri,
-        //   headers: <String, String>{
-        //     'Content-Type': 'application/json; charset=UTF-8'
-        //   },
-        //   body: jsonEncode(<String, String>{
-        //     'username': emailController.value.text,
-        //     'password': passController.value.text,
-        //   }),
-        // );
         var response = await ns.postRequest(uri, {
           'username': emailController.value.text,
           'password': passController.value.text,
         });
         // print(response.headers);
         if (response?.statusCode == 200) {
-          print('Form submitted');
-          // print(response.body);
-
+          NetworkService.setUser(int.parse(response.data.substring(1)), response.data[0] == 'o' ? true : false);
           authController.logIn();
           isloading.value = false;
           return true;

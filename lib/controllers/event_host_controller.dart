@@ -5,16 +5,15 @@ import 'package:volunteer_app/services/city.dart';
 import 'package:volunteer_app/services/network.dart';
 import 'package:volunteer_app/views/event_host.dart';
 
+import '../views/widgets/skill_select_dialog.dart';
+
 class EventHostController extends GetxController{
   var formKey = GlobalKey<FormState>();
   var ns=NetworkService();
   var isLoading = false.obs;
   @override
   Future<void> onInit() async {
-    var response=await ns.getRequest(Uri.https(apiUrl,'skill/'));
-    skills.value={for (var skill in response.data) skill['name']: skill['id']};
-    skillsDMI.value=[for (var skill in response.data) DropdownMenuItem(child: Text(skill['name']), value: skill['id'].toString())];
-    SelectSkillsDialog.skills=[for (var skill in response.data) skill['name']];
+    skills.value=SelectSkillsDialog.skills;
     super.onInit();
   }
   var titleController = TextEditingController().obs;
@@ -44,7 +43,6 @@ class EventHostController extends GetxController{
 
   var maxAttendeesController = 0.obs;
   var skills= Map<String,int>().obs;
-  var skillsDMI = <DropdownMenuItem<String>>[].obs;
   var selectedSkills=<String>[].obs;
 
   Future<void> submit() async {
@@ -54,8 +52,8 @@ class EventHostController extends GetxController{
         'title': titleController.value.text,
         'description': descriptionController.value.text,
         'location': locationController.value.text,
-        'enrollment_deadline': _selectedEnrollmentDeadline.value.toIso8601String(),
-        'start_datetime': _selectedStartDateTime.value.toIso8601String(),
+        'enrollmentDeadline': _selectedEnrollmentDeadline.value.toIso8601String(),
+        'startDate': _selectedStartDateTime.value.toIso8601String(),
         'duration': "${durationHours.value}:${durationMinutes.value}",
         'city': int.parse(selectedCity.value.text)+1,
         'max_attendees': maxAttendeesController.value,

@@ -34,10 +34,10 @@ class EventController extends GetxController {
 
   @override
   void onInit() {
-    super.onInit();
     eventId.value = Get.parameters['id'] ?? 'No ID found';
-    getEvent();
     fetchRating();
+    getEvent();
+    super.onInit();
   }
 
   void getEvent() async {

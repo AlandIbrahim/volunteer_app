@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:volunteer_app/controllers/my_events_controller.dart';
+import 'package:volunteer_app/services/network.dart';
 import 'package:volunteer_app/views/widgets/event_card.dart';
 import 'package:volunteer_app/views/widgets/navigtion_bar.dart';
 
@@ -22,12 +23,12 @@ class MyEventsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
+        leading: NetworkService.isOrg? IconButton(
           onPressed: () {
-            Get.to('/events/1');
+            Get.toNamed('/event/host');
           },
-          icon: const Icon(Icons.abc),
-        ),
+          icon: const Icon(Icons.add, color: Colors.white),
+        ):null,
         title: const Text(
           'My events',
           style: TextStyle(color: Colors.white),

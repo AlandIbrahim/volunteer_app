@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:volunteer_app/services/network.dart';
-import '../services/api.dart';
 import 'package:get/get.dart';
-import 'package:volunteer_app/models/event.dart';
+import '../models/event.dart';
+import '../services/api.dart';
+import '../services/network.dart';
 
 class HomeController extends GetxController {
   NetworkService ns = NetworkService();
@@ -45,7 +45,7 @@ class HomeController extends GetxController {
       } else {
         print("Failed to fetch data: ${response.statusCode}");
       }
-    } on DioException catch (e) {
+    } on DioException {
       serverAvailable.value = false;
     } catch (e) {
       print("Error fetching data: $e");

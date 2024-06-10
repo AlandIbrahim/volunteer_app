@@ -8,6 +8,8 @@ import 'package:volunteer_app/services/city.dart';
 import 'package:volunteer_app/services/network.dart';
 import 'package:volunteer_app/views/widgets/organization_register.dart';
 
+import 'widgets/skill_select_dialog.dart';
+
 class EventHost extends StatelessWidget {
   const EventHost({Key? key}) : super(key: key);
   @override
@@ -52,6 +54,8 @@ class EventHost extends StatelessWidget {
                         validator: (value) => value!.isEmpty
                             ? 'Please enter a description'
                             : null,
+                            minLines: 1,
+                            maxLines: 5,
                         decoration: InputDecoration(
                           labelText: 'Description',
                           border: const OutlineInputBorder(),
@@ -358,61 +362,5 @@ class EventHost extends StatelessWidget {
                     ),
                   ]),
             ))));
-  }
-}
-
-class SelectSkillsDialog extends StatefulWidget {
-  final List<String> initialSelectedValues;
-  const SelectSkillsDialog({Key? key, required this.initialSelectedValues})
-      : super(key: key);
-  static List<String> skills = [];
-  @override
-  _SelectSkillsDialogState createState() => _SelectSkillsDialogState();
-}
-
-class _SelectSkillsDialogState extends State<SelectSkillsDialog> {
-  List<String> selectedValues = [];
-  @override
-  void initState() {
-    selectedValues = List.from(widget.initialSelectedValues);
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Select skills'),
-      content: SingleChildScrollView(
-          child: ListBody(
-        children: SelectSkillsDialog.skills.map((String skill) {
-          return CheckboxListTile(
-            title: Text(skill),
-            value: selectedValues.contains(skill),
-            onChanged: (bool? value) {
-              setState(() {
-                if (value != null) {
-                  if (value) {
-                    selectedValues.add(skill);
-                  } else {
-                    selectedValues.remove(skill);
-                  }
-                }
-              });
-            },
-          );
-        }).toList(),
-      )),
-      actions: [
-        TextButton(
-          onPressed: () =>
-              Navigator.of(context).pop(widget.initialSelectedValues),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(selectedValues),
-          child: const Text('OK'),
-        ),
-      ],
-    );
   }
 }
