@@ -54,7 +54,7 @@ class EventHostController extends GetxController{
         'location': locationController.value.text,
         'enrollmentDeadline': _selectedEnrollmentDeadline.value.toIso8601String(),
         'startDate': _selectedStartDateTime.value.toIso8601String(),
-        'duration': "${durationHours.value}:${durationMinutes.value}",
+        'duration': "${durationHours.value.toString().padLeft(2,'0')}:${durationMinutes.value.toString().padLeft(2, '0')}",
         'city': int.parse(selectedCity.value.text)+1,
         'max_attendees': maxAttendeesController.value,
         'skills': [for (var skill in selectedSkills) skills[skill]]

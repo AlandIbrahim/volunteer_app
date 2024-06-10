@@ -104,14 +104,14 @@ class EventEditController extends GetxController {
   Future<void> submit() async {
     if (formKey.currentState!.validate()) {
       isLoading.value = true;
-      var response = await ns.postRequest(Uri.https(apiUrl, 'event/host'), {
+      var response = await ns.patchRequest(Uri.https(apiUrl, 'event/$eventId'), {
         'title': titleController.value.text,
         'description': descriptionController.value.text,
         'location': locationController.value.text,
         'enrollmentDeadline':
             _selectedEnrollmentDeadline.value.toIso8601String(),
         'startDate': _selectedStartDateTime.value.toIso8601String(),
-        'duration': "${durationHours.value}:${durationMinutes.value}",
+        'duration': "${durationHours.value.toString().padLeft(2,'0')}:${durationMinutes.value.toString().padLeft(2,'0')}",
         'city': int.parse(selectedCity.value.text) + 1,
         'maxAttendees': int.parse(maxAttendeesController.value.text),
         'skills': [for (var skill in selectedSkills) skills[skill]]

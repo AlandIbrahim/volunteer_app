@@ -354,7 +354,7 @@ class EventHost extends StatelessWidget {
                         onPressed: () async {
                           if (controller.formKey.currentState!.validate()) {
                             await controller.submit();
-                            Get.back();
+                            Get.toNamed('/home');
                           }
                         },
                         child: const Text('Host event'),

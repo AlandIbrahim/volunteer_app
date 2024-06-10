@@ -94,7 +94,7 @@ class EventCard extends StatelessWidget {
                             fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        '${event.startDate}',
+                        '${event.startDate.toString().substring(0,16)}',
                         style: const TextStyle(fontSize: 14),
                       ),
                     ],
@@ -155,6 +155,7 @@ class EventCard extends StatelessWidget {
                                   cancelTextColor: Colors.black,
                                   onConfirm: () async {
                                     await controller.deleteEvent(event.id);
+                                    Get.close(1);
                                   },
                                   onCancel: () => Get.close(1),
                                 );

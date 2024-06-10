@@ -18,7 +18,7 @@ class EventEdit extends StatelessWidget {
     EventEditController controller = Get.put(EventEditController());
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Host your event',
+          title: const Text('Edit your event',
               style: TextStyle(color: Colors.white)),
           centerTitle: true,
           backgroundColor: Colors.teal,
@@ -353,10 +353,10 @@ class EventEdit extends StatelessWidget {
                         onPressed: () async {
                           if (controller.formKey.currentState!.validate()) {
                             await controller.submit();
-                            Get.back();
+                            Get.toNamed('/home');
                           }
                         },
-                        child: const Text('Host event'),
+                        child: const Text('Confirm'),
                       ),
                     ),
                   ]),
