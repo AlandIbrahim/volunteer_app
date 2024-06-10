@@ -16,6 +16,7 @@ class EventController extends GetxController {
   var enrollable = false.obs;
   var enrolled = false.obs;
   var ratingUnlocked = false.obs;
+  var ratingVisible= false.obs;
   var rating=Map().obs;
   NetworkService networkService = NetworkService();
   var event = Event(
@@ -45,18 +46,76 @@ class EventController extends GetxController {
     var response =
         await networkService.getRequest(Uri.https(apiUrl, 'event/$eventId'));
     event.value = Event.fromJson(response.data);
-    if (event.value.status.contains('Enrolled')) {
-      enrolled.value = true;
+    // if (event.value.status.contains('Enrolled')) {
+    //   enrolled.value = true;
+    // }
+    // if (event.value.status.contains('Ended') ||
+    //     event.value.status.contains('Cancelled') ||
+    //     event.value.status.contains('deadline') ||
+    //     event.value.status.contains('Live')) {
+    //   enrollable.value = true;
+    //   bgColor1.value = Colors.grey[600]!;
+    //   bgColor2.value = Colors.grey[800]!;
+    // }
+    // if (event.value.status.contains('Attended')) ratingUnlocked.value = true;
+    switch (event.value.status) {
+      case 'Upcoming':
+        enrollable.value = true;
+        bgColor1.value = Colors.teal[200]!;
+        bgColor2.value = Colors.teal[500]!;
+        enrollable.value = true;
+        ratingVisible.value=false;
+        break;
+      case 'Upcoming(Enrolled)':
+        bgColor1.value =  Color.fromARGB(255, 120, 240, 156);
+        bgColor2.value =  Color.fromARGB(255, 80, 200, 100);
+        enrolled.value = true;
+        enrollable.value = true;
+        ratingVisible.value=false;
+        break;
+      case 'Upcoming(Full)':
+      case 'Upcoming(Enrollment deadline Passed)':
+        bgColor1.value = Colors.teal[400]!;
+        bgColor2.value = Colors.teal[700]!;
+        enrollable.value = false;
+        ratingVisible.value=false;
+        break;
+      case 'Live':
+        bgColor1.value = Colors.teal[200]!;
+        bgColor2.value = Colors.teal[300]!;
+        enrollable.value = false;
+        ratingVisible.value=false;
+        break;
+        //return Colors.teal;
+      case 'Ended':
+        bgColor1.value = Color.fromARGB(255, 180, 180, 180);
+        bgColor2.value = Color.fromARGB(255, 100, 100, 100);
+        enrolled.value = false;
+        ratingVisible.value=true;
+        ratingUnlocked.value = false;
+      case 'Cancelled':
+        bgColor1.value = Color.fromARGB(255, 180, 180, 180);
+        bgColor2.value = Color.fromARGB(255, 100, 100, 100);
+        enrolled.value = false;
+        ratingVisible.value=false;
+        break;
+      case 'Ended(Missed)':
+        bgColor1.value =  Color.fromARGB(255, 200, 100, 95);
+        bgColor2.value =  Color.fromARGB(255, 150, 70, 50);
+        enrolled.value = true;
+        ratingVisible.value=true;
+        ratingUnlocked.value = true;
+        break;
+      case 'Ended(Attended)':
+        bgColor1.value =  Color.fromARGB(255, 120, 200, 156);
+        bgColor2.value =  Color.fromARGB(255, 80, 150, 100);
+        enrolled.value = true;
+        ratingUnlocked.value = true;
+        break;
+      default:
+        bgColor1.value = Colors.teal[500]!;
+        bgColor2.value = Colors.teal[900]!;
     }
-    if (event.value.status.contains('Ended') ||
-        event.value.status.contains('Cancelled') ||
-        event.value.status.contains('deadline') ||
-        event.value.status.contains('Live')) {
-      enrollable.value = true;
-      bgColor1.value = Colors.grey[400]!;
-      bgColor2.value = Colors.grey[800]!;
-    }
-    if (event.value.status.contains('Attended')) ratingUnlocked.value = true;
     isLoading.value = false;
   }
 

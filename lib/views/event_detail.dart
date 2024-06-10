@@ -3,9 +3,21 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:volunteer_app/controllers/event_detail_controller.dart';
 
+import '../services/api.dart';
+
 class EventDetailPage extends StatelessWidget {
   const EventDetailPage({super.key});
-
+  static const TextStyle fieldStyle= const TextStyle(
+    fontSize: 20.0,
+    color: Colors.white,
+    shadows: [
+      Shadow(
+        color: Colors.black,
+        blurRadius: 2.0,
+        offset: Offset(1, 1),
+      ),
+    ]
+  );
   @override
   Widget build(BuildContext context) {
     final EventController controller = Get.find();
@@ -17,6 +29,7 @@ class EventDetailPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: controller.bgColor1.value,
+              
               elevation: 0,
             ),
             body: const Center(
@@ -28,6 +41,17 @@ class EventDetailPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: controller.bgColor1.value,
+              title: Text(event.title, style: const TextStyle(
+                fontSize: 24,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    color: Colors.black87,
+                    blurRadius: 2.0,
+                    offset: Offset(1.0, 1.0),
+                  ),
+                ]
+                )),
               elevation: 0,
             ),
             body: Container(
@@ -49,23 +73,8 @@ class EventDetailPage extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(15.0),
                         child: Image.network(
-                          'https://picsum.photos/400/200',
-                          height: 200.0,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Center(
-                      child: Text(
-                        event.title,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 28.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                          Uri.https(apiUrl,'event/download/${event.id}').toString(),
+                          errorBuilder: (context, error, stackTrace) => SizedBox(height:8),),
                       ),
                     ),
                     const SizedBox(height: 20.0),
@@ -75,56 +84,71 @@ class EventDetailPage extends StatelessWidget {
                         fontSize: 20.0,
                         fontStyle: FontStyle.italic,
                         color: Colors.white70,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black45,
+                            blurRadius: 2.0,
+                            offset: Offset(1.0, 1.0),
+                          ),]
                       ),
                     ),
                     const SizedBox(height: 20.0),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_city, color: Colors.white70),
-                        const SizedBox(width: 10.0),
-                        Text(
-                          event.city.name,
-                          style: const TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      event.description,
+                      maxLines: 5,
+                      style: fieldStyle,
                     ),
                     const SizedBox(height: 20.0),
                     Row(
                       children: [
                         const Icon(Icons.location_on, color: Colors.white70),
                         const SizedBox(width: 10.0),
-                        Expanded(
-                          child: Text(
-                            event.location,
-                            style: const TextStyle(
-                              fontSize: 20.0,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+                        Text("${event.location}, ${event.city.name}",style: fieldStyle,),
                       ],
+                    ),
+                    const SizedBox(height: 20.0),
+                    const Text('Enrollment ends on: ',style: fieldStyle),
+                    Text('${
+                        event.enrollmentDeadline.toString().split(' ')[0]
+                      } at around ${
+                        event.enrollmentDeadline.toString().split(' ')[1].split(':')[0]
+                      }:${
+                        event.enrollmentDeadline.toString().split(' ')[1].split(':')[1]
+                      }',
+                      style: fieldStyle.copyWith(
+                        decoration: (
+                          event.status.contains('Enrollment deadline Passed')||
+                          event.status.contains('Ended'))?TextDecoration.lineThrough:TextDecoration.none,
+                        decorationColor: Colors.white,
+                        decorationThickness: 3.0,
+                    )),
+                    const SizedBox(height: 20.0),
+                    const Text('Event starts on: ',style: fieldStyle),
+                    Text('${
+                        event.startDate.toString().split(' ')[0]
+                      } at around ${
+                        event.startDate.toString().split(' ')[1].split(':')[0]
+                      }:${
+                        event.startDate.toString().split(' ')[1].split(':')[1]
+                      }',
+                      style: fieldStyle.copyWith(
+                          decoration: event.status.contains('Ended')?TextDecoration.lineThrough:TextDecoration.none,
+                          decorationColor: Colors.white,
+                          decorationThickness: 3.0,
+                        ),
                     ),
                     const SizedBox(height: 20.0),
                     Row(
                       children: [
-                        const Icon(Icons.access_time, color: Colors.white70),
-                        const SizedBox(width: 10.0),
-                        Text(
-                          '${event.startDate}',
-                          style: const TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                        const SizedBox(height: 20.0),
+                        const Text('Duration: ',style: fieldStyle),
+                        Text('${event.duration.split(':')[0]}h ${event.duration.split(':')[1]}m',style: fieldStyle)
+                      ]
                     ),
                     const SizedBox(height: 30.0),
                     const Divider(color: Colors.white70),
                     const SizedBox(height: 20.0),
-                    if (!controller.enrollable.value)
+                    if (controller.enrollable.value)
                       ElevatedButton(
                         onPressed: () {
                           if (controller.enrolled.value) {
@@ -137,6 +161,7 @@ class EventDetailPage extends StatelessWidget {
                             controller.enrolled.value ? 'Unenroll' : 'Enroll'),
                       )
                     else
+                      if(controller.ratingVisible.value)
                       Center(
                         child: Column(
                           children: [

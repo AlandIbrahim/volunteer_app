@@ -17,7 +17,7 @@ class EventCardController extends GetxController {
 
   Color fromStatus(String status) {
     switch (status) {
-      case 'upcoming':
+      case 'Upcoming':
       case 'Upcoming(Full)':
       case 'Upcoming(Enrollment deadline Passed)':
       case 'Live':
@@ -49,9 +49,26 @@ class EventCardController extends GetxController {
     }
   }
   Future unenroll(int eid) async{
-    await ns.getRequest(Uri.https(apiUrl,'event/$eid/unenroll'));
+    try{
+      await ns.getRequest(Uri.https(apiUrl,'event/$eid/unenroll'));
+    } on DioException catch(e){
+      if(e.response?.data.toString().contains('Not enrolled')??false)
+        Get.snackbar('Not allowed', 'You cannot unenroll from an event you are not enrolled in',backgroundColor: Color.fromARGB(150, 255, 0, 0));
+      else
+        Get.snackbar('Error', 'Failed to unenroll from event');
+    }
   }
   Future enroll(int eid) async{
+    try{
     await ns.getRequest(Uri.https(apiUrl,'event/$eid/enroll'));
+    } on DioException catch(e){
+      if(e.response?.data.toString().contains('Enrollment deadline passed')??false)
+        Get.snackbar('Not allowed', 'You cannot enroll in an event after the enrollment deadline',backgroundColor: Color.fromARGB(150, 255, 0, 0));
+      else if(e.response?.data.toString().contains('Event full')??false)
+        Get.snackbar('Not allowed', 'You cannot enroll in an event that is full',backgroundColor: Color.fromARGB(150, 255, 0, 0));
+      else if(e.response?.data.toString().contains('Already enrolled')??false)
+        Get.snackbar('Already enrolled', 'You cannot enroll in an event you are already enrolled in',backgroundColor: Color.fromARGB(150, 255, 150, 0));
+      else Get.snackbar('Error', 'Failed to enroll in event');
+    }
   }
 }

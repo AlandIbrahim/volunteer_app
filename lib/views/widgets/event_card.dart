@@ -64,15 +64,16 @@ class EventCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         )
                       ),
-                      Row(
-                        children: [
                           if(event.status.contains('Live')) 
                               const Icon(Icons.circle, color: Colors.red, size: 16),
-                          Text(event.status)
-                        ]
-                      )
                     ]
                   ),
+                          Text(event.status,style: const TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'monospace',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black54,
+                          ),),
                   Center(
                     child: Image.network(
                       Uri.https(apiUrl,'event/download/${event.id}').toString(),
@@ -127,7 +128,7 @@ class EventCard extends StatelessWidget {
                         )),
                         child: const Text('Details', style: btnStyle),
                       ),
-                      if (NetworkService.isOrg)
+                      if (NetworkService.isOrg)...[
                         if(NetworkService.uid==event.oid)
                           if(!event.status.contains('Cancelled'))...[
                             ElevatedButton(
@@ -163,7 +164,7 @@ class EventCard extends StatelessWidget {
                             const Color(0xffAA1F00),
                           )),
                           child: const Text('Cancel', style: btnStyle),
-                        ),]
+                        ),]]
                        else ...[
                         if(event.status.contains('Upcoming'))
                           if(event.status.contains('Enrolled')) ElevatedButton(
@@ -173,7 +174,7 @@ class EventCard extends StatelessWidget {
                               },
                               style: ButtonStyle(
                                   backgroundColor: WidgetStateProperty.all<Color>(
-                                Colors.green,
+                                Colors.teal,
                               )),
                               child: const Text('Unenroll', style: btnStyle),
                             )
