@@ -149,7 +149,7 @@ class AllEventDTO {
           timeParts[1],
         ),
       ),
-      status: json["status"]??"upcoming",
+      status: json["status"]??"Upcoming",
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:get/get.dart';
 import 'package:volunteer_app/controllers/event_card_controller.dart';
+import 'package:volunteer_app/services/api.dart';
 import 'package:volunteer_app/services/network.dart';
 // import 'package:flutter/material.dart';
 
@@ -72,6 +73,11 @@ class EventCard extends StatelessWidget {
                       )
                     ]
                   ),
+                  Center(
+                    child: Image.network(
+                      Uri.https(apiUrl,'event/download/${event.id}').toString(),
+                      errorBuilder: (context, error, stackTrace) => SizedBox(height:8),),
+                  ),
                   const SizedBox(height: 8),
                   const SizedBox(height: 8),
                   // Text(
@@ -121,71 +127,68 @@ class EventCard extends StatelessWidget {
                         )),
                         child: const Text('Details', style: btnStyle),
                       ),
-                      if (NetworkService.isOrg) ...[
-                        if(NetworkService.uid==event.oid)...[
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.toNamed('/event/edit/${event.id}');
-                          },
-                          style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all<Color>(const Color(0xffaa7710),
-                          )),
-                          child: const Text('Edit', style: btnStyle),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            // popup confirmation:
-                            Get.defaultDialog(
-                              title: 'Cancel Event',
-                              middleText:
-                                  'Are you sure you want to delete this event?',
-                              textConfirm: 'Yes',
-                              textCancel: 'No',
-                              backgroundColor: Colors.teal[50],
-                              confirmTextColor: Colors.white,
-                              buttonColor: const Color(0xffAA1F00),
-                              cancelTextColor: Colors.black,
-                              onConfirm: () async {
-                                try {
-                                  await controller.deleteEvent(event.id);
-                                } on DioException catch (e) {
-                                  Get.close(1);
-                                  if (e.response?.data.toString().contains('Not the owner') ??false)
-                                    Get.snackbar('Not allowed','You cannot delete other\'s events',backgroundColor: Color.fromARGB(150, 255, 0, 0));
-                                  else
-                                    Get.snackbar('Error', 'Failed to delete event');
-                                }
+                      if (NetworkService.isOrg)
+                        if(NetworkService.uid==event.oid)
+                          if(!event.status.contains('Cancelled'))...[
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.toNamed('/event/edit/${event.id}');
                               },
-                              onCancel: () => Get.close(1),
-                            );
-                          },
+                              style: ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.all<Color>(const Color(0xffaa7710),
+                              )),
+                              child: const Text('Edit', style: btnStyle),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                // popup confirmation:
+                                Get.defaultDialog(
+                                  title: 'Cancel Event',
+                                  middleText:
+                                      'Are you sure you want to delete this event?',
+                                  textConfirm: 'Yes',
+                                  textCancel: 'No',
+                                  backgroundColor: Colors.teal[50],
+                                  confirmTextColor: Colors.white,
+                                  buttonColor: const Color(0xffAA1F00),
+                                  cancelTextColor: Colors.black,
+                                  onConfirm: () async {
+                                    await controller.deleteEvent(event.id);
+                                  },
+                                  onCancel: () => Get.close(1),
+                                );
+                              },
                           style: ButtonStyle(
                               backgroundColor: WidgetStateProperty.all<Color>(
                             const Color(0xffAA1F00),
                           )),
                           child: const Text('Cancel', style: btnStyle),
                         ),]
-                      ] else ...[
-                        if(event.status.contains('enroll'))
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.toNamed('/event/${event.id}');
-                          },
-                          style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all<Color>(
-                            Colors.green,
-                          )),
-                          child: const Text('Unenroll', style: btnStyle),
-                        ) else if(event.status.contains('upcoming')) ElevatedButton(
-                          onPressed: () {
-                            Get.toNamed('/event/${event.id}');
-                          },
-                          style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all<Color>(
-                            Colors.green,
-                          )),
-                          child: const Text('Enroll', style: btnStyle),
-                        )
+                       else ...[
+                        if(event.status.contains('Upcoming'))
+                          if(event.status.contains('Enrolled')) ElevatedButton(
+                              onPressed: () {
+                                controller.unenroll(event.id);
+                                event.status='Upcoming';
+                              },
+                              style: ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.all<Color>(
+                                Colors.green,
+                              )),
+                              child: const Text('Unenroll', style: btnStyle),
+                            )
+                          else if(!(event.status.contains('Enrollment deadline Passed')||event.status.contains('Full')))
+                            ElevatedButton(
+                              onPressed: () {
+                                controller.enroll(event.id);
+                                event.status='upcoming(Enrolled)';
+                              },
+                              style: ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.all<Color>(
+                                Colors.green,
+                              )),
+                              child: const Text('Enroll', style: btnStyle),
+                            )
                       ]
                     ],
                   )
